@@ -1,6 +1,7 @@
 package com.css.call.log.entity
 
 import com.css.call.log.model.Log
+import com.fasterxml.jackson.annotation.JsonProperty
 import org.springframework.data.annotation.Id
 import org.springframework.data.mongodb.core.mapping.Document
 import java.time.ZonedDateTime
@@ -9,12 +10,17 @@ import java.time.ZonedDateTime
 data class UserEntity (
         @Id
         val id: String,
+        @JsonProperty("first_name")
         val firstName: String = "",
+        @JsonProperty("last_name")
         val lastName: String = "",
+        @JsonProperty("middle_name")
         val middleName: String? = null,
         val email: List<Pair<String, String>> = emptyList(),
         val tel: List<Pair<String, Long>> = emptyList(),
+        @JsonProperty("updated_ts")
         val updatedTs: ZonedDateTime = ZonedDateTime.now(),
+        @JsonProperty("inserted_ts")
         val insertedTs: ZonedDateTime = ZonedDateTime.now(),
         val logs: List<Log> = emptyList()
 )

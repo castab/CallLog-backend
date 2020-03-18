@@ -8,6 +8,8 @@ import java.time.ZonedDateTime
 data class Log (
         @JsonProperty("message")
         val message: String = "",
+        @JsonProperty("updated_ts")
         val updatedTs: ZonedDateTime = ZonedDateTime.now(),
+        @JsonProperty("inserted_ts")
         val insertedTs: ZonedDateTime = ZonedDateTime.now()
 )
