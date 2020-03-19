@@ -12,9 +12,9 @@ data class User (
         @JsonProperty("middle_name")
         val middleName: String? = null,
         @JsonProperty("email")
-        val email: List<Pair<String, String>> = emptyList(),
+        val email: Map<String, String> = emptyMap(),
         @JsonProperty("tel")
-        val tel: List<Pair<String, Long>> = emptyList(),
+        val tel: Map<String, Long> = emptyMap(),
         @JsonProperty("logs")
         val logs: List<Log> = emptyList()
 )

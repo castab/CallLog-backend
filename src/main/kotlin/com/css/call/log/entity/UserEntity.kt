@@ -16,11 +16,14 @@ data class UserEntity (
         val lastName: String = "",
         @JsonProperty("middle_name")
         val middleName: String? = null,
-        val email: List<Pair<String, String>> = emptyList(),
-        val tel: List<Pair<String, Long>> = emptyList(),
+        @JsonProperty("email")
+        val email: Map<String, String> = emptyMap(),
+        @JsonProperty("tel")
+        val tel: Map<String, Long> = emptyMap(),
         @JsonProperty("updated_ts")
         val updatedTs: ZonedDateTime = ZonedDateTime.now(),
         @JsonProperty("inserted_ts")
         val insertedTs: ZonedDateTime = ZonedDateTime.now(),
+        @JsonProperty("logs")
         val logs: List<Log> = emptyList()
 )
