@@ -10,12 +10,14 @@ fun User.toUserEntity(): UserEntity = UserEntity(
         lastName = lastName,
         tel = tel,
         email = email,
-        logs = logs
+        updatedTs = updatedTs,
+        insertedTs = insertedTs,
+        logs = logs.sortedByDescending { it.updatedTs }
 )
 
 fun User.id(): String = when {
-    (middleName.isNullOrEmpty()) -> "${lastName.toUpperCase()}_${firstName.toUpperCase()}"
-    else -> "${lastName.toUpperCase()}_${firstName.toUpperCase()}_${middleName.toUpperCase()}"
-}
+    (middleName.isNullOrEmpty()) -> "${lastName}_${firstName}"
+    else -> "${lastName}_${firstName}_$middleName"
+}.toUpperCase()
 
 fun List<User>.toUserEntities(): List<UserEntity> = map{it.toUserEntity()}

@@ -11,9 +11,9 @@ data class UserEntity (
         @Id
         val id: String,
         @JsonProperty("first_name")
-        val firstName: String = "",
+        val firstName: String,
         @JsonProperty("last_name")
-        val lastName: String = "",
+        val lastName: String,
         @JsonProperty("middle_name")
         val middleName: String? = null,
         @JsonProperty("email")

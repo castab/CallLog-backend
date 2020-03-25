@@ -7,4 +7,8 @@ services:
       - MONGO_INITDB_ROOT_USERNAME=testAdmin
       - MONGO_INITDB_ROOT_PASSWORD=somePassword
     ports:
-      - '27017-27019:27017-27019'
+      - 27017:27017
+#  api:
+#    image: call-log/backend
+#    ports:
+#      - 8080:8080

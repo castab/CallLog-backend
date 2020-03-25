@@ -4,6 +4,7 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.core.convert.converter.Converter
 import org.springframework.data.mongodb.core.convert.MongoCustomConversions
+import java.time.ZoneId
 import java.time.ZoneOffset
 import java.time.ZonedDateTime
 import java.util.Date
@@ -18,7 +19,7 @@ class MongoConfig {
 
 internal class ZonedDateTimeReadConverter: Converter<Date, ZonedDateTime> {
     override fun convert(source: Date): ZonedDateTime {
-        return source.toInstant().atZone(ZoneOffset.UTC)
+        return source.toInstant().atZone(ZoneId.of("UTC"))
     }
 }
 
