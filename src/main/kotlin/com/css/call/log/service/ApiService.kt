@@ -12,8 +12,15 @@ import org.springframework.dao.DuplicateKeyException
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.*
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.PatchMapping
+import org.springframework.web.bind.annotation.DeleteMapping
 import java.time.ZonedDateTime
+import java.util.*
 
 @RestController
 class ApiService(private val mongoRepo: MongoRepo) {
@@ -24,15 +31,18 @@ class ApiService(private val mongoRepo: MongoRepo) {
 
     @GetMapping("/users")
     fun getAllUsers(): List<UserEntity> {
-        return mongoRepo.findAll().sortedBy { it.id }
+        return mongoRepo
+                .fetchAllUsersSansLogs()
+                .sortedBy { it.id }
     }
 
     @GetMapping("/logs")
     fun getAllLogs(): List<LogDisplay> {
-        val allUsers = getAllUsers()
-        return allUsers
+        return mongoRepo
+                .fetchAllUserLogs()
                 .map{
-                    it.logs.map {log -> LogDisplay("${it.lastName}, ${it.firstName} ${it.middleName?:""}".trim(),it.id,log) }
+                    it.logs
+                      .map {log -> LogDisplay("${it.lastName}, ${it.firstName} ${it.middleName?:""}".trim(),it.id,log)}
                 }
                 .flatten()
                 .sortedByDescending { it.log.updatedTs }
@@ -40,8 +50,9 @@ class ApiService(private val mongoRepo: MongoRepo) {
 
     @PostMapping("/user")
     fun createUser(@RequestBody user: User): ResponseEntity<String> {
+        if (user.firstName.isBlank() || user.lastName.isBlank()) throw BadRequestException("First and last names are required.")
         return try {
-            mongoRepo.insert(user.toUserEntity())
+            mongoRepo.insert(user.copy(logs = emptySet()).toUserEntity())
             ResponseEntity(HttpStatus.CREATED)
         } catch (e: DuplicateKeyException) {
             throw BadRequestException("User already exists.")
@@ -73,18 +84,28 @@ class ApiService(private val mongoRepo: MongoRepo) {
     }
 
     @GetMapping("/user/{id}/logs")
-    fun getUserLogs(@PathVariable id: String): List<Log> {
-        return findById(id).logs
+    fun getUserLogs(@PathVariable id: String): SortedSet<Log> {
+        return findById(id).logs.toSortedSet()
     }
 
     @PostMapping("/user/{id}/log")
-    fun createUserLog(@PathVariable id: String, @RequestBody(required = true) newLog: Log): ResponseEntity<String> {
+    fun createUserLog(@PathVariable id: String, @RequestBody(required = true) log: Log): ResponseEntity<String> {
         return when {
             id.isEmpty() -> throw BadRequestException("User ID is required.")
-            newLog.message.isEmpty() -> throw BadRequestException("Message field cannot be empty")
+            log.message.isEmpty() -> throw BadRequestException("Message field cannot be empty")
             else -> {
+                val now = ZonedDateTime.now()
+                val newLog = log.copy(
+                        id = UUID.randomUUID().toString(),
+                        updatedTs = now,
+                        insertedTs = now)
                 val currentUser = findById(id)
-                val updatedLogs = (currentUser.logs + newLog).sortedByDescending { it.updatedTs }
+                if (currentUser.logs.contains(newLog)) throw BadRequestException("Log already exists.")
+                val updatedLogs = if (currentUser.logs.count() >= 100) {
+                    currentUser.logs.toSortedSet().let{ it - it.last() + newLog }
+                } else {
+                    currentUser.logs + newLog
+                }.filter{it.id!="0"}.toSet()
                 mongoRepo.save(currentUser.copy(logs = updatedLogs))
                 ResponseEntity(HttpStatus.CREATED)
             }

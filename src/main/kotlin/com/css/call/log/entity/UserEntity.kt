@@ -16,6 +16,8 @@ data class UserEntity (
         val lastName: String,
         @JsonProperty("middle_name")
         val middleName: String? = null,
+        @JsonProperty("alias")
+        val alias: String? = null,
         @JsonProperty("email")
         val email: Map<String, String> = emptyMap(),
         @JsonProperty("tel")
@@ -25,5 +27,5 @@ data class UserEntity (
         @JsonProperty("inserted_ts")
         val insertedTs: ZonedDateTime = ZonedDateTime.now(),
         @JsonProperty("logs")
-        val logs: List<Log> = emptyList()
+        val logs: Set<Log> = emptySet()
 )

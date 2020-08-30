@@ -8,11 +8,12 @@ fun User.toUserEntity(): UserEntity = UserEntity(
         firstName = firstName,
         middleName = middleName,
         lastName = lastName,
+        alias = alias,
         tel = tel,
         email = email,
         updatedTs = updatedTs,
         insertedTs = insertedTs,
-        logs = logs.sortedByDescending { it.updatedTs }
+        logs = logs
 )
 
 fun User.id(): String = when {
