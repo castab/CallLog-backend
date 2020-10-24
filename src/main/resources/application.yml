@@ -1,3 +1,8 @@
+server:
+  http2.enabled: true
+  compression:
+    enabled: true
+    min-response-size: 1024
 spring:
   data:
     mongodb:
